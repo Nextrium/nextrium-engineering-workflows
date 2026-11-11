@@ -1,0 +1,46 @@
+name: Reusable Go CI
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        description: Go version or version file
+        required: false
+        type: string
+        default: "stable"
+      working-directory:
+        description: Directory containing go.mod
+        required: false
+        type: string
+        default: "."
+permissions: {}
+jobs:
+  go:
+    name: Go format, vet, and tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Go
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.5.0
+        with:
+          go-version: ${{ inputs.go-version }}
+          cache: true
+      - name: Verify formatting
+        shell: bash
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [[ -n "$unformatted" ]]; then
+            printf 'Go files require gofmt:\n%s\n' "$unformatted"
+            exit 1
+          fi
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test -race -coverprofile=coverage.out ./...
+      - name: Build
+        run: go build ./...
