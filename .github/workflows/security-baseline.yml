@@ -38,6 +38,30 @@ jobs:
           cache: false
       - name: Install pinned Gitleaks
         run: go install github.com/zricethezav/gitleaks/v8@v8.30.1
+      - name: Validate Gitleaks positive, negative, and redaction behaviour
+        shell: bash
+        run: |
+          set -euo pipefail
+          gitleaks="$(go env GOPATH)/bin/gitleaks"
+          fixture_dir="$(mktemp -d)"
+          trap 'rm -rf "$fixture_dir"' EXIT
+          mkdir -p "$fixture_dir/positive" "$fixture_dir/negative"
+          printf '%s\n' 'AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE' > "$fixture_dir/positive/fixture.env"
+
+          set +e
+          output="$("$gitleaks" dir "$fixture_dir/positive" --redact --exit-code 1 2>&1)"
+          scan_status=$?
+          set -e
+          if [[ "$scan_status" -eq 0 ]]; then
+            echo "Gitleaks failed to detect the controlled positive fixture."
+            exit 1
+          fi
+          if grep -Fq 'AKIAIOSFODNN7EXAMPLE' <<< "$output"; then
+            echo "Gitleaks output exposed the controlled test credential."
+            exit 1
+          fi
+          "$gitleaks" dir "$fixture_dir/negative" --redact --exit-code 1
+
       - name: Scan repository and Git history
         run: |
           "$(go env GOPATH)/bin/gitleaks" git --redact --exit-code 1
