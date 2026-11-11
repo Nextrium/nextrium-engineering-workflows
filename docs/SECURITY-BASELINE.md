@@ -52,7 +52,7 @@ This document is the implementation contract for the shared security gate. A con
 
 ## Rollout and validation
 
-1. Complete the missing reusable scanners with pinned tool versions and verified checksums/SHAs.
+1. Complete the remaining reusable scanners with pinned tool versions and verified checksums/SHAs.
 2. Validate scanner outputs against controlled positive and negative fixtures.
 3. Run in a non-production repository and verify expected pass/fail behaviour.
 4. Test failure modes: scanner unavailable, network failure, malformed report, expired exception, and secret redaction.
