@@ -7,7 +7,7 @@ This document is the implementation contract for the shared security gate. A con
 | Control | Required behaviour | Current status |
 |---|---|---|
 | Secret detection | Scan tracked files and full PR diff for high-confidence credentials; fail on confirmed secrets; support narrowly scoped, expiring suppressions | Initial implementation: Gitleaks 8.30.1 scans full Git history; suppression workflow not implemented |
-| Dependency vulnerabilities | Evaluate direct and transitive dependencies; fail on critical/high runtime vulnerabilities; report moderate/low; exceptions must be time-bound | Language-specific npm and pip audit steps exist; Go vulnerability check not implemented |
+| Dependency vulnerabilities | Evaluate direct and transitive dependencies; fail on critical/high runtime vulnerabilities; report moderate/low; exceptions must be time-bound | npm and pip audit steps exist; govulncheck is available as an opt-in Go job; unified severity/exception policy not implemented |
 | Dependency licence policy | Enforce approved licence policy against resolved dependency graph; unknown licences require review; no blanket allow-list | Not implemented |
 | GitHub Actions security | Static analysis of workflow files; block dangerous token permissions, unsafe expression use, untrusted code execution and unsafe privileged triggers | Not implemented |
 | Container security | Scan built images for OS and application vulnerabilities; block critical/high; generate machine-readable report | Not implemented; no container workflow yet |
