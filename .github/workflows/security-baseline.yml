@@ -1,5 +1,10 @@
 name: Reusable Security Baseline
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
   workflow_dispatch:
   workflow_call:
     inputs:
