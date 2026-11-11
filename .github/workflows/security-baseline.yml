@@ -46,7 +46,7 @@ jobs:
           fixture_dir="$(mktemp -d)"
           trap 'rm -rf "$fixture_dir"' EXIT
           mkdir -p "$fixture_dir/positive" "$fixture_dir/negative"
-          test_secret="AKIA""LALEM33243OLIA"
+          test_secret="AKIA""LALEMEL33243OLIA"
           printf 'awsToken := "%s"\n' "$test_secret" > "$fixture_dir/positive/fixture.go"
 
           set +e
@@ -57,7 +57,7 @@ jobs:
             echo "Gitleaks failed to detect the controlled positive fixture."
             exit 1
           fi
-          if grep -Fq 'AKIALALEMEL33243OLIA' <<< "$output"; then
+          if grep -Fq "$test_secret" <<< "$output"; then
             echo "Gitleaks output exposed the controlled test credential."
             exit 1
           fi
