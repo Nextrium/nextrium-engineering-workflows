@@ -18,7 +18,7 @@ Reusable, security-conscious GitHub Actions workflows for Nextrium projects.
 | `go-ci.yml` | Go formatting, tests, vet, and static analysis | Initial implementation |
 | `python-ci.yml` | Python formatting, lint, tests, and type checks where configured | Initial implementation |
 | `typescript-ci.yml` | TypeScript/JavaScript install, lint, type-check, and tests where configured | Initial implementation |
-| `security-baseline.yml` | Git-history secret detection, GitHub Actions static analysis, optional Go vulnerability analysis | Initial implementation; validation pending |
+| `security-baseline.yml` | Git-history secret detection, GitHub Actions static analysis, optional Go vulnerability analysis | Validated in this repository; consumer validation pending |
 | Dependency review | Planned; action pin and repository compatibility must be verified before implementation | Not implemented |
 
 Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for caller examples and rollout guidance. Security-gate scope and implementation status are tracked in `docs/SECURITY-BASELINE.md`.
