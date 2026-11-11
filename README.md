@@ -19,9 +19,9 @@ Reusable, security-conscious GitHub Actions workflows for Nextrium projects.
 | `python-ci.yml` | Python formatting, lint, tests, and type checks where configured | Initial implementation |
 | `typescript-ci.yml` | TypeScript/JavaScript install, lint, type-check, and tests where configured | Initial implementation |
 | `security-baseline.yml` | Secret, dependency, workflow, and repository security checks | Initial implementation |
-| `dependency-review.yml` | Review dependency changes in pull requests | Initial implementation |
+| Dependency review | Planned; action pin and repository compatibility must be verified before implementation | Not implemented |
 
-Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for caller examples and rollout guidance.
+Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for caller examples and rollout guidance. Security-gate scope and implementation status are tracked in `docs/SECURITY-BASELINE.md`.
 
 ## Security policy
 
