@@ -6,7 +6,7 @@ This document is the implementation contract for the shared security gate. A con
 
 | Control | Required behaviour | Current status |
 |---|---|---|
-| Secret detection | Scan tracked files and full PR diff for high-confidence credentials; fail on confirmed secrets; support narrowly scoped, expiring suppressions | Initial implementation: Gitleaks 8.30.1 scans full Git history; positive/negative and redaction fixtures added; two exact historical test-fixture fingerprints are temporarily ignored under SECEX-001 |
+| Secret detection | Scan tracked files and full PR diff for high-confidence credentials; fail on confirmed secrets; support narrowly scoped, expiring suppressions | Initial implementation: Gitleaks 8.30.1 scans full Git history; positive/negative and redaction fixtures passed; full Git-history scan passed with two exact historical test-fixture fingerprints ignored under SECEX-001 |
 | Dependency vulnerabilities | Evaluate direct and transitive dependencies; fail on critical/high runtime vulnerabilities; report moderate/low; exceptions must be time-bound | npm and pip audit steps exist; govulncheck is available as an opt-in Go job; unified severity/exception policy not implemented |
 | Dependency licence policy | Enforce approved licence policy against resolved dependency graph; unknown licences require review; no blanket allow-list | Not implemented |
 | GitHub Actions security | Static analysis of workflow files; block dangerous token permissions, unsafe expression use, untrusted code execution and unsafe privileged triggers | Initial implementation: zizmor action v0.8.1; validation and policy tuning pending |
@@ -53,7 +53,7 @@ This document is the implementation contract for the shared security gate. A con
 ## Rollout and validation
 
 1. Complete the remaining reusable scanners with pinned tool versions and verified checksums/SHAs.
-2. Validate scanner outputs against controlled positive and negative fixtures (Gitleaks fixtures implemented; workflow run pending).
+2. Validate scanner outputs against controlled positive and negative fixtures (Gitleaks positive detection, clean negative input, redaction assertion, and full-history scan passed on 11 November 2026).
 3. Run in a non-production repository and verify expected pass/fail behaviour.
 4. Test failure modes: scanner unavailable, network failure, malformed report, expired exception, and secret redaction.
 5. Publish exact required check names and pin the shared workflow commit in each consumer.
