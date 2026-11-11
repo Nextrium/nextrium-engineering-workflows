@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/workflows/**'
       - '.github/actions/**'
+      - '.gitleaksignore'
+      - 'docs/SECURITY-BASELINE.md'
+      - 'docs/SECURITY-EXCEPTIONS.md'
   workflow_dispatch:
   workflow_call:
     inputs:
