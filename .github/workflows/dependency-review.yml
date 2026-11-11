@@ -1,0 +1,19 @@
+name: Reusable Dependency Review
+on:
+  workflow_call:
+permissions: {}
+jobs:
+  dependency-review:
+    name: Block vulnerable dependency additions
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@5a2ce3f5b4d4b6a8c3b8e3c6b0c2b6e4b4a2c1d0 # reviewed SHA placeholder; replace after verification
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-3.0, AGPL-3.0, SSPL-1.0
+          comment-summary-in-pr: always
