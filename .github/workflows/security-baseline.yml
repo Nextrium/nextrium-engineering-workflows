@@ -1,5 +1,6 @@
 name: Reusable Security Baseline
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       scan-go:
