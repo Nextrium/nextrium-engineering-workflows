@@ -46,7 +46,8 @@ jobs:
           fixture_dir="$(mktemp -d)"
           trap 'rm -rf "$fixture_dir"' EXIT
           mkdir -p "$fixture_dir/positive" "$fixture_dir/negative"
-          printf '%s\n' 'awsToken := "AKIALALEMEL33243OLIA"' > "$fixture_dir/positive/fixture.go"
+          test_secret="AKIA""LALEM33243OLIA"
+          printf 'awsToken := "%s"\n' "$test_secret" > "$fixture_dir/positive/fixture.go"
 
           set +e
           output="$("$gitleaks" dir "$fixture_dir/positive" --redact --exit-code 1 2>&1)"
