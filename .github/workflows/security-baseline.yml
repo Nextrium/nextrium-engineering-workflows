@@ -50,7 +50,7 @@ jobs:
           printf 'awsToken := "%s"\n' "$test_secret" > "$fixture_dir/positive/fixture.go"
 
           set +e
-          output="$("$gitleaks" dir "$fixture_dir/positive" --redact --exit-code 1 2>&1)"
+          output="$(printf 'awsToken := "%s"\n' "$test_secret" | "$gitleaks" stdin --redact --exit-code 1 2>&1)"
           scan_status=$?
           set -e
           if [[ "$scan_status" -eq 0 ]]; then
@@ -61,11 +61,20 @@ jobs:
             echo "Gitleaks output exposed the controlled test credential."
             exit 1
           fi
-          "$gitleaks" dir "$fixture_dir/negative" --redact --exit-code 1
+          printf '%s\n' 'nothing sensitive here' | "$gitleaks" stdin --redact --exit-code 1
 
       - name: Scan repository and Git history
         run: |
-          "$(go env GOPATH)/bin/gitleaks" git --redact --exit-code 1
+          gitleaks="$(go env GOPATH)/bin/gitleaks"
+          report="$RUNNER_TEMP/gitleaks-report.json"
+          set +e
+          "$gitleaks" git --redact --report-format json --report-path "$report" --exit-code 1
+          scan_status=$?
+          set -e
+          if [[ -s "$report" ]]; then
+            jq -r '.[] | [.Fingerprint, .RuleID, .File, .Commit] | @tsv' "$report"
+          fi
+          exit "$scan_status"
 
   workflow-analysis:
     name: GitHub Actions security analysis
