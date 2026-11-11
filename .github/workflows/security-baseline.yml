@@ -15,7 +15,7 @@ on:
 permissions: {}
 jobs:
   secrets:
-    name: Secret detection (history and working tree)
+    name: Secret detection (Git history)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,6 +51,7 @@ jobs:
         uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
         with:
           advanced-security: false
+          version: "1.32.0"
 
   go-vulnerability:
     name: Go vulnerability analysis
