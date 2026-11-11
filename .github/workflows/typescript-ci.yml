@@ -43,10 +43,18 @@ jobs:
       - name: Lint when configured
         shell: bash
         run: |
-          node -e "const p=require('./package.json'); process.exit(p.scripts?.lint ? 0 : 1)" && npm run lint || { code=$?; if [[ $code -eq 1 ]] && ! node -e "process.exit(require('./package.json').scripts?.lint ? 0 : 1)"; then echo "No lint script configured; skipped."; else exit $code; fi; }
+          if node -e "process.exit(require('./package.json').scripts?.lint ? 0 : 1)"; then
+            npm run lint
+          else
+            echo "No lint script configured; skipped."
+          fi
       - name: Type check when configured
         shell: bash
         run: |
-          node -e "const p=require('./package.json'); process.exit(p.scripts?.typecheck || p.scripts?.['type-check'] ? 0 : 1)" && (npm run typecheck --if-present; npm run type-check --if-present) || echo "No type-check script configured; skipped."
+          if node -e "const s=require('./package.json').scripts || {}; process.exit(s.typecheck || s['type-check'] ? 0 : 1)"; then
+            if node -e "process.exit(require('./package.json').scripts?.typecheck ? 0 : 1)"; then npm run typecheck; else npm run type-check; fi
+          else
+            echo "No type-check script configured; skipped."
+          fi
       - name: Tests when configured
         run: npm test --if-present
