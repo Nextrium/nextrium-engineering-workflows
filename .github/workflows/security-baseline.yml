@@ -8,6 +8,7 @@ on:
       - '.gitleaksignore'
       - 'docs/SECURITY-BASELINE.md'
       - 'docs/SECURITY-EXCEPTIONS.md'
+      - 'docs/ENGINEERING-STANDARDS.md'
   pull_request:
     paths:
       - '.github/workflows/**'
@@ -15,6 +16,7 @@ on:
       - '.gitleaksignore'
       - 'docs/SECURITY-BASELINE.md'
       - 'docs/SECURITY-EXCEPTIONS.md'
+      - 'docs/ENGINEERING-STANDARDS.md'
   workflow_dispatch:
   workflow_call:
     inputs:
