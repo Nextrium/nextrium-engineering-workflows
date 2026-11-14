@@ -1,0 +1,67 @@
+name: Security Exception Review
+
+on:
+  schedule:
+    - cron: "0 9 1 1,4,7,10 *"
+  pull_request:
+    paths:
+      - "docs/SECURITY-EXCEPTIONS.md"
+      - ".gitleaksignore"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-freshness:
+    name: Validate exception review dates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Require a current maintainer review
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from datetime import date
+          from pathlib import Path
+
+          path = Path("docs/SECURITY-EXCEPTIONS.md")
+          lines = path.read_text(encoding="utf-8").splitlines()
+          header = "| ID | Finding | Scope | Rationale | Owner | Last reviewed | Review cadence | Status |"
+          try:
+              start = lines.index(header) + 2
+          except ValueError:
+              raise SystemExit("Security exception table or Last reviewed column is missing.")
+
+          today = date.today()
+          rows = [line for line in lines[start:] if line.startswith("| SECEX-")]
+          if not rows:
+              raise SystemExit("No security exception entries found; review the exception ledger.")
+
+          failures = []
+          for row in rows:
+              cells = [cell.strip() for cell in row.strip("|").split("|")]
+              if len(cells) < 8:
+                  failures.append(f"Malformed exception row: {row}")
+                  continue
+              exception_id, reviewed_text = cells[0], cells[5]
+              try:
+                  reviewed = date.fromisoformat(reviewed_text)
+              except ValueError:
+                  failures.append(f"{exception_id}: Last reviewed must be YYYY-MM-DD.")
+                  continue
+              age = (today - reviewed).days
+              if age < 0:
+                  failures.append(f"{exception_id}: review date is in the future.")
+              elif age > 120:
+                  failures.append(f"{exception_id}: last review is {age} days old; maintainer review is overdue.")
+
+          if failures:
+              print("\n".join(failures))
+              raise SystemExit("Security exception review is overdue. Verify each rationale and exact scope, then update Last reviewed.")
+          print(f"All {len(rows)} security exception(s) have a review date within the 120-day window.")
+          PY
