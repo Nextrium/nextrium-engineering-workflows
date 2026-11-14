@@ -29,7 +29,7 @@ def validate(
     if header_index + 1 >= len(lines) or not lines[header_index + 1].lstrip().startswith("|---"):
         raise ValueError("Security exception table separator is missing.")
 
-    rows: list[tuple[str, str]] = []
+    rows: list[tuple[str, str, str]] = []
     failures: list[str] = []
     for line_number, line in enumerate(lines[header_index + 2 :], header_index + 3):
         if not line.strip():
@@ -37,18 +37,23 @@ def validate(
         if not line.startswith("|"):
             if line.lstrip().startswith("|"):
                 failures.append(f"Line {line_number}: indented Markdown table row is not allowed.")
+                continue
+            if "|" in line:
+                failures.append(f"Line {line_number}: malformed table row must start with '|'.")
+                continue
             break
+
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if len(cells) != 8:
             failures.append(
                 f"Line {line_number}: malformed exception row has {len(cells)} columns; expected 8."
             )
             continue
-        exception_id, reviewed_text = cells[0], cells[5]
+        exception_id, reviewed_text, status = cells[0], cells[5], cells[7]
         if not EXCEPTION_ID.fullmatch(exception_id):
             failures.append(f"Line {line_number}: unrecognised exception ID {exception_id!r}.")
             continue
-        rows.append((exception_id, line))
+        rows.append((exception_id, line, status))
         try:
             reviewed = date.fromisoformat(reviewed_text)
         except ValueError:
@@ -72,8 +77,9 @@ def validate(
         if line.strip() and not line.lstrip().startswith("#")
     ]
     active_rows = [
-        row for exception_id, row in rows
-        if "active" in row.lower()
+        row
+        for _, row, status in rows
+        if status.lower() == "active" or status.lower().startswith("active;")
     ]
     for entry in ignore_entries:
         parts = entry.split(":")
