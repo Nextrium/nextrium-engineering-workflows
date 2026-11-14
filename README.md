@@ -21,15 +21,16 @@ Reusable, security-conscious GitHub Actions workflows for Nextrium projects.
 | `security-baseline.yml` | Git-history secret detection, GitHub Actions static analysis, optional Go vulnerability analysis | Validated in this repository; consumer validation pending |
 | Dependency review | Planned; action pin and repository compatibility must be verified before implementation | Not implemented |
 
-Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for caller examples and rollout guidance. Security-gate scope and implementation status are tracked in `docs/SECURITY-BASELINE.md`.
+Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for caller examples and rollout guidance, `docs/ENGINEERING-STANDARDS.md` for company-wide workflow, repository-governance and dependency/licence practices, and `docs/SECURITY-BASELINE.md` for security-gate scope and implementation status.
 
 ## Security policy
 
 - Do not integrate Aegis Scan or Aegis Review from this repository at this stage.
 - Do not use floating action tags in shared workflows. Third-party actions must be pinned to verified full commit SHAs.
 - Scanner/tool versions and checksums must be explicit and updated through reviewed changes.
-- Findings must not be silently suppressed. Exceptions require an owner, rationale, scope, and expiry date.
-- High/critical findings block the relevant gate unless a documented, time-bound exception is approved.
+- Findings must not be silently suppressed. Exceptions require an owner, rationale, exact scope, compensating controls where applicable, and recorded human review.
+- Exceptions do not automatically expire; they remain valid only while their rationale and exact scope remain true, with at least quarterly human review and automated review-date freshness checks.
+- High/critical findings block the relevant gate unless a documented exception has been explicitly reviewed and approved by an accountable maintainer.
 
 ## Scope boundaries
 
