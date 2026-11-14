@@ -54,10 +54,10 @@ jobs:
           trap 'rm -rf "$fixture_dir"' EXIT
           mkdir -p "$fixture_dir/positive" "$fixture_dir/negative"
           test_secret="AKIA""LALEMEL33243OLIA"
-          printf 'awsToken := "%s"\\n' "$test_secret" > "$fixture_dir/positive/fixture.go"
+          printf 'awsToken := "%s"\n' "$test_secret" > "$fixture_dir/positive/fixture.go"
 
           set +e
-          output="$(printf 'awsToken := "%s"\\n' "$test_secret" | "$gitleaks" stdin --redact --exit-code 1 2>&1)"
+          output="$(printf 'awsToken := "%s"\n' "$test_secret" | "$gitleaks" stdin --redact --exit-code 1 2>&1)"
           scan_status=$?
           set -e
           if [[ "$scan_status" -eq 0 ]]; then
@@ -68,7 +68,7 @@ jobs:
             echo "Gitleaks output exposed the controlled test credential."
             exit 1
           fi
-          printf '%s\\n' 'nothing sensitive here' | "$gitleaks" stdin --redact --exit-code 1
+          printf '%s\n' 'nothing sensitive here' | "$gitleaks" stdin --redact --exit-code 1
 
       - name: Scan repository and Git history
         run: |
@@ -124,3 +124,7 @@ jobs:
         with:
           work-dir: ${{ inputs.working-directory }}
           go-package: ./...
+          go-version-input: "1.25.0"
+          check-latest: false
+          cache: false
+          repo-checkout: false

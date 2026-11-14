@@ -98,6 +98,48 @@ class ValidateSecurityExceptionsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
             validate(ledger("2026-11-14", status="Inactive"), self.TODAY, IGNORE)
 
+    def test_duplicate_exception_id_fails(self):
+        row = "| SECEX-001 | Finding | deadbeef:.github/workflows/security-baseline.yml:aws-access-token:49 | Rationale | Team | 2026-11-14 | Quarterly | Active |"
+        content = ledger("2026-11-14") + "\n" + row
+        with self.assertRaisesRegex(ValueError, "duplicate exception ID"):
+            validate(content, self.TODAY, IGNORE)
+
+    def test_partial_line_substring_does_not_match_ignore(self):
+        partial = "deadbeef:.github/workflows/security-baseline.yml:aws-access-token:4"
+        with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
+            validate(ledger("2026-11-14"), self.TODAY, partial)
+
+    def test_empty_ignore_segments_fail(self):
+        with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
+            validate(ledger("2026-11-14"), self.TODAY, ":::")
+
+    def test_ignore_tokens_must_appear_in_finding_or_scope_not_rationale(self):
+        content = "\n".join(
+            [
+                "# Security Exceptions",
+                "",
+                HEADER,
+                "|---|---|---|---|---|---|---|---|",
+                "| SECEX-001 | Other rule | Unrelated scope | Rationale mentions deadbeef .github/workflows/security-baseline.yml aws-access-token 49 | Team | 2026-11-14 | Quarterly | Active |",
+            ]
+        )
+        with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
+            validate(content, self.TODAY, IGNORE)
+
+    def test_prose_scope_matches_exact_tokens_only(self):
+        content = "\n".join(
+            [
+                "# Security Exceptions",
+                "",
+                HEADER,
+                "|---|---|---|---|---|---|---|---|",
+                "| SECEX-001 | Gitleaks `aws-access-token` | Two exact fingerprints in commit `deadbeef`, file `.github/workflows/security-baseline.yml`, lines 49 and 59 | Rationale | Team | 2026-11-14 | Quarterly | Active |",
+            ]
+        )
+        self.assertEqual(validate(content, self.TODAY, IGNORE), 1)
+        with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
+            validate(content, self.TODAY, "deadbeef:.github/workflows/security-baseline.yml:aws-access-token:5")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,6 +12,21 @@ import sys
 HEADER = "| ID | Finding | Scope | Rationale | Owner | Last reviewed | Review cadence | Status |"
 MAX_REVIEW_AGE_DAYS = 120
 EXCEPTION_ID = re.compile(r"SECEX-[0-9]{3}")
+TOKEN_BOUNDARY = r"[A-Za-z0-9_./-]"
+
+
+def _parse_ignore_entry(entry: str) -> tuple[str, str, str, str] | None:
+    parts = entry.split(":")
+    if len(parts) < 4:
+        return None
+    commit, file_path, rule, line_num = parts[0], ":".join(parts[1:-2]), parts[-2], parts[-1]
+    if not all((commit, file_path, rule, line_num)):
+        return None
+    return commit, file_path, rule, line_num
+
+
+def _contains_token(text: str, token: str) -> bool:
+    return re.search(rf"(?<!{TOKEN_BOUNDARY}){re.escape(token)}(?!{TOKEN_BOUNDARY})", text) is not None
 
 
 def validate(
@@ -29,7 +44,8 @@ def validate(
     if header_index + 1 >= len(lines) or not lines[header_index + 1].lstrip().startswith("|---"):
         raise ValueError("Security exception table separator is missing.")
 
-    rows: list[tuple[str, str, str]] = []
+    rows: list[tuple[str, str, str, str]] = []
+    seen_ids: set[str] = set()
     failures: list[str] = []
     for line_number, line in enumerate(lines[header_index + 2 :], header_index + 3):
         if not line.strip():
@@ -49,11 +65,21 @@ def validate(
                 f"Line {line_number}: malformed exception row has {len(cells)} columns; expected 8."
             )
             continue
-        exception_id, reviewed_text, status = cells[0], cells[5], cells[7]
+        exception_id, finding, scope, reviewed_text, status = (
+            cells[0],
+            cells[1],
+            cells[2],
+            cells[5],
+            cells[7],
+        )
         if not EXCEPTION_ID.fullmatch(exception_id):
             failures.append(f"Line {line_number}: unrecognised exception ID {exception_id!r}.")
             continue
-        rows.append((exception_id, line, status))
+        if exception_id in seen_ids:
+            failures.append(f"Line {line_number}: duplicate exception ID {exception_id!r}.")
+            continue
+        seen_ids.add(exception_id)
+        rows.append((exception_id, finding, scope, status))
         try:
             reviewed = date.fromisoformat(reviewed_text)
         except ValueError:
@@ -76,14 +102,17 @@ def validate(
         for line in ignore_content.splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     ]
-    active_rows = [
-        row
-        for _, row, status in rows
+    active_targets = [
+        f"{finding} {scope}"
+        for _, finding, scope, status in rows
         if status.lower() == "active" or status.lower().startswith("active;")
     ]
     for entry in ignore_entries:
-        parts = entry.split(":")
-        if len(parts) < 4 or not any(all(part in row for part in parts) for row in active_rows):
+        parsed = _parse_ignore_entry(entry)
+        if parsed is None or not any(
+            all(_contains_token(target, token) for token in parsed)
+            for target in active_targets
+        ):
             failures.append(
                 f"Gitleaks ignore entry is not documented by an active exception: {entry}"
             )

@@ -96,7 +96,7 @@ The shared workflow repository must keep its README, consumer guide and security
 
 The central workflow repository is public and can use GitHub's public-repository branch protection/ruleset capabilities. Its `main` branch should require pull requests, at least one maintainer approval, and the always-running `Secret detection (Git history)` and `GitHub Actions security analysis` checks from `Reusable Security Baseline`. The optional Go vulnerability job should be required only when every applicable caller enables `scan-go`; the exception-ledger freshness check is path-triggered and should not be a universal required check.
 
-**Configuration status: pending repository-owner/admin action.** The repository's branch protection endpoint is not readable through the currently connected GitHub integration, and no ruleset is visible through the available read interface. This document does not claim that protection is enabled. Until an owner verifies and configures it in GitHub repository settings, use pull requests, maintainer review and CI evidence as the interim control. This is an administrative configuration gap, not a reason to purchase a plan or change repository visibility.
+**Configuration status:** GitHub repository ruleset on `main` configured alongside the standards bootstrap merge (requiring pull requests, maintainer approval, non-fast-forward/deletion protection, and required checks `Secret detection (Git history)` and `GitHub Actions security analysis`). Verify live ruleset enforcement state in GitHub Repository Settings -> Rules -> Rulesets. Until all consumer repositories adopt and verify the workflows, product-repo enforcement remains documented per repository.
 
 ## 6. Review
 
