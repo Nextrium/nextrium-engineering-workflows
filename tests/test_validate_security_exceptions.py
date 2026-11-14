@@ -44,6 +44,10 @@ class ValidateSecurityExceptionsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must be YYYY-MM-DD"):
             validate(ledger("14-11-2026"), self.TODAY, IGNORE)
 
+    def test_missing_review_date_fails(self):
+        with self.assertRaisesRegex(ValueError, "must be YYYY-MM-DD"):
+            validate(ledger(""), self.TODAY, IGNORE)
+
     def test_missing_exception_rows_fail_by_default(self):
         content = "\n".join([HEADER, "|---|---|---|---|---|---|---|---|"])
         with self.assertRaisesRegex(ValueError, "No security exception entries"):
@@ -71,14 +75,28 @@ class ValidateSecurityExceptionsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unrecognised exception ID"):
             validate(ledger("2026-11-14", row_id="SECEX-00X"), self.TODAY)
 
+    def test_stray_table_row_fails(self):
+        content = ledger("2026-11-14") + "\n| NOT-AN-EXCEPTION | stray | row |"
+        with self.assertRaisesRegex(ValueError, "expected 8"):
+            validate(content, self.TODAY)
+
     def test_indented_table_row_fails(self):
         content = ledger("2026-11-14").replace("| SECEX-001", "  | SECEX-001")
         with self.assertRaisesRegex(ValueError, "indented Markdown table row"):
             validate(content, self.TODAY)
 
+    def test_missing_leading_pipe_fails(self):
+        content = ledger("2026-11-14").replace("| SECEX-001", "SECEX-001", 1)
+        with self.assertRaisesRegex(ValueError, "must start with"):
+            validate(content, self.TODAY)
+
     def test_ignore_entry_must_match_active_exception(self):
         with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
             validate(ledger("2026-11-14"), self.TODAY, "untracked:ignore:entry:1")
+
+    def test_inactive_exception_does_not_authorise_ignore(self):
+        with self.assertRaisesRegex(ValueError, "not documented by an active exception"):
+            validate(ledger("2026-11-14", status="Inactive"), self.TODAY, IGNORE)
 
 
 if __name__ == "__main__":
