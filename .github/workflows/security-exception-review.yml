@@ -64,17 +64,13 @@ jobs:
           path: .nextrium-engineering-workflows
           persist-credentials: false
 
-      - name: Use central validator from this repository
-        if: ${{ github.event_name != 'workflow_call' }}
-        run: |
-          mkdir -p .nextrium-engineering-workflows/scripts
-          cp scripts/validate_security_exceptions.py .nextrium-engineering-workflows/scripts/validate_security_exceptions.py
-
-      - name: Test review validator
+      - name: Test central review validator
         shell: bash
         run: |
-          if [[ -f .nextrium-engineering-workflows/tests/test_validate_security_exceptions.py ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
             python3 -m unittest discover -s .nextrium-engineering-workflows/tests -p 'test_validate_security_exceptions.py' -v
+          else
+            python3 -m unittest discover -s tests -p 'test_validate_security_exceptions.py' -v
           fi
 
       - name: Validate ledger freshness and suppression alignment
@@ -84,6 +80,11 @@ jobs:
           IGNORE_PATH: ${{ inputs.ignore-path || '.gitleaksignore' }}
           ALLOW_EMPTY_LEDGER: ${{ inputs.allow-empty-ledger && 'true' || 'false' }}
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
+            validator=".nextrium-engineering-workflows/scripts/validate_security_exceptions.py"
+          else
+            validator="scripts/validate_security_exceptions.py"
+          fi
           args=(--ledger-path "$LEDGER_PATH" --ignore-path "$IGNORE_PATH")
           if [[ "$ALLOW_EMPTY_LEDGER" == "true" ]]; then args+=(--allow-empty-ledger); fi
-          python3 .nextrium-engineering-workflows/scripts/validate_security_exceptions.py "${args[@]}"
+          python3 "$validator" "${args[@]}"
