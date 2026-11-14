@@ -19,6 +19,7 @@ Reusable, security-conscious GitHub Actions workflows for Nextrium projects.
 | `python-ci.yml` | Python formatting, lint, tests, and type checks where configured | Initial implementation |
 | `typescript-ci.yml` | TypeScript/JavaScript install, lint, type-check, and tests where configured | Initial implementation |
 | `security-baseline.yml` | Git-history secret detection, GitHub Actions static analysis, optional Go vulnerability analysis | Validated in this repository; consumer validation pending |
+| `security-exception-review.yml` | Exception-ledger review-date freshness and ignore-entry reconciliation | Validated in this repository; reusable consumer adoption pending |
 | Dependency review | Planned; action pin and repository compatibility must be verified before implementation | Not implemented |
 
 Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for caller examples and rollout guidance, `docs/ENGINEERING-STANDARDS.md` for company-wide workflow, repository-governance and dependency/licence practices, and `docs/SECURITY-BASELINE.md` for security-gate scope and implementation status.
@@ -27,9 +28,9 @@ Workflows are reusable through `workflow_call`. See `docs/CONSUMER-GUIDE.md` for
 
 - Do not integrate Aegis Scan or Aegis Review from this repository at this stage.
 - Do not use floating action tags in shared workflows. Third-party actions must be pinned to verified full commit SHAs.
-- Scanner/tool versions and checksums must be explicit and updated through reviewed changes.
+- Scanner/tool versions and checksums must be explicit and updated through reviewed changes. Go-installed tools use explicit module versions and Go checksum-database verification; downloaded release binaries require verified checksums.
 - Findings must not be silently suppressed. Exceptions require an owner, rationale, exact scope, compensating controls where applicable, and recorded human review.
-- Exceptions do not automatically expire; they remain valid only while their rationale and exact scope remain true, with at least quarterly human review and automated review-date freshness checks.
+- Exceptions do not automatically expire; they remain valid only while their rationale and exact scope remain true, with at least quarterly human review and automated review-date freshness checks (maximum 120 days). Freshness validation does not renew an exception.
 - High/critical findings block the relevant gate unless a documented exception has been explicitly reviewed and approved by an accountable maintainer.
 
 ## Scope boundaries
