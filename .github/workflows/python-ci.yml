@@ -32,13 +32,13 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
           cache: pip
-      - name: Install project and quality tools
+      - name: Install project and pinned quality tools
         shell: bash
         run: |
           python -m pip install --upgrade pip
           if [[ -f requirements.txt ]]; then python -m pip install -r requirements.txt; fi
           if [[ -f pyproject.toml ]]; then python -m pip install -e '.[dev]' || python -m pip install -e .; fi
-          python -m pip install ruff mypy pip-audit
+          python -m pip install ruff==0.14.5 mypy==1.19.0 pip-audit==2.10.1
       - name: Ruff lint and format
         run: |
           ruff check .
