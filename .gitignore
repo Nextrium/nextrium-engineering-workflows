@@ -1,0 +1,1 @@
+__pycache__/\n*.py[cod]\n.pytest_cache/\n.mypy_cache/\n.ruff_cache/\n.venv/\nvenv/\n.env\n.env.*\n!.env.example\ncoverage/\ncoverage.out\n
