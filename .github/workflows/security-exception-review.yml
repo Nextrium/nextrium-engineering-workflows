@@ -56,7 +56,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout pinned central validator
-        if: ${{ github.event_name == 'workflow_call' }}
+        if: ${{ inputs.validator-ref != '' }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: Nextrium/nextrium-engineering-workflows
@@ -67,7 +67,7 @@ jobs:
       - name: Test central review validator
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
+          if [[ -n "${{ inputs.validator-ref }}" ]]; then
             python3 -m unittest discover -s .nextrium-engineering-workflows/tests -p 'test_validate_security_exceptions.py' -v
           else
             python3 -m unittest discover -s tests -p 'test_validate_security_exceptions.py' -v
@@ -80,7 +80,7 @@ jobs:
           IGNORE_PATH: ${{ inputs.ignore-path || '.gitleaksignore' }}
           ALLOW_EMPTY_LEDGER: ${{ inputs.allow-empty-ledger && 'true' || 'false' }}
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
+          if [[ -n "${{ inputs.validator-ref }}" ]]; then
             validator=".nextrium-engineering-workflows/scripts/validate_security_exceptions.py"
           else
             validator="scripts/validate_security_exceptions.py"
