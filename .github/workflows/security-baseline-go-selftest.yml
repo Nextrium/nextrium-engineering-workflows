@@ -1,0 +1,18 @@
+name: Security Baseline Go Scan Self-Test
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/security-baseline.yml"
+      - ".github/workflows/security-baseline-go-selftest.yml"
+      - ".github/test-fixtures/go-module/**"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  go-vulnerability-self-test:
+    uses: Nextrium/nextrium-engineering-workflows/.github/workflows/security-baseline.yml@d086c4d1fce0dfd89ffafb0bdddf7a47dc1bc9b4
+    with:
+      scan-go: true
+      working-directory: .github/test-fixtures/go-module
