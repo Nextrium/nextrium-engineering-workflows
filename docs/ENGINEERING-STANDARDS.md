@@ -92,6 +92,12 @@ The standards above define the expected company-wide practice. Each product repo
 
 The shared workflow repository must keep its README, consumer guide and security baseline accurate about what is implemented, validated, pending or not enforced. Do not claim company-wide enforcement until adoption has been verified in the relevant repositories.
 
-## 5. Review
+## 5. Central repository protection status
+
+The central workflow repository is public and can use GitHub's public-repository branch protection/ruleset capabilities. Its `main` branch should require pull requests, maintainer approval and the relevant successful status checks once the required check names are verified.
+
+**Configuration status: pending repository-owner/admin action.** The repository's branch protection endpoint is not readable through the currently connected GitHub integration, and no ruleset is visible through the available read interface. This document does not claim that protection is enabled. Until an owner verifies and configures it in GitHub repository settings, use pull requests, maintainer review and CI evidence as the interim control. This is an administrative configuration gap, not a reason to purchase a plan or change repository visibility.
+
+## 6. Review
 
 Review this standard at least annually and whenever the company changes its distribution model, dependency policy, repository governance capabilities, security requirements or shared workflow architecture.
