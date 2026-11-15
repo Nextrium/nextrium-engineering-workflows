@@ -1,0 +1,45 @@
+name: Central Exception Review
+
+on:
+  schedule:
+    - cron: "0 9 1 1,4,7,10 *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/security-exception-review.yml"
+      - ".github/workflows/central-exception-review.yml"
+      - "docs/SECURITY-EXCEPTIONS.md"
+      - ".gitleaksignore"
+      - "scripts/validate_security_exceptions.py"
+      - "tests/test_validate_security_exceptions.py"
+  pull_request:
+    paths:
+      - ".github/workflows/security-exception-review.yml"
+      - ".github/workflows/central-exception-review.yml"
+      - "docs/SECURITY-EXCEPTIONS.md"
+      - ".gitleaksignore"
+      - "scripts/validate_security_exceptions.py"
+      - "tests/test_validate_security_exceptions.py"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  review-freshness:
+    name: Validate exception ledger and ignore entries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Test exception review validator
+        shell: bash
+        run: python3 -m unittest discover -s tests -p 'test_validate_security_exceptions.py' -v
+
+      - name: Validate ledger freshness and suppression alignment
+        shell: bash
+        run: python3 scripts/validate_security_exceptions.py --ledger-path docs/SECURITY-EXCEPTIONS.md --ignore-path .gitleaksignore

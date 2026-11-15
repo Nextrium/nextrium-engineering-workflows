@@ -1,41 +1,57 @@
-name: Security Exception Review
+name: Reusable Security Exception Review
 
 on:
-  schedule:
-    - cron: "0 9 1 1,4,7,10 *"
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/security-exception-review.yml"
-      - "docs/SECURITY-EXCEPTIONS.md"
-      - ".gitleaksignore"
-      - "scripts/validate_security_exceptions.py"
-      - "tests/test_validate_security_exceptions.py"
-  pull_request:
-    paths:
-      - "docs/SECURITY-EXCEPTIONS.md"
-      - ".gitleaksignore"
-      - "scripts/validate_security_exceptions.py"
-      - "tests/test_validate_security_exceptions.py"
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ledger-path:
+        description: Consumer repository path to the security exception ledger
+        required: false
+        type: string
+        default: "docs/SECURITY-EXCEPTIONS.md"
+      ignore-path:
+        description: Consumer repository path to the Gitleaks ignore file
+        required: false
+        type: string
+        default: ".gitleaksignore"
+      allow-empty-ledger:
+        description: Allow a consumer with no exceptions only when its ignore file is also empty
+        required: false
+        type: boolean
+        default: true
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   review-freshness:
-    name: Validate exception review dates
+    name: Validate exception ledger and ignore entries
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - name: Checkout source
+      - name: Checkout consumer source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
 
-      - name: Test review-date validator
-        shell: bash
-        run: python3 -m unittest discover -s tests -p 'test_validate_security_exceptions.py' -v
+      - name: Checkout pinned central validator
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .nextrium-engineering-workflows
+          persist-credentials: false
 
-      - name: Require a current maintainer review
+      - name: Test central review validator
         shell: bash
-        run: python3 scripts/validate_security_exceptions.py
+        run: python3 -m unittest discover -s .nextrium-engineering-workflows/tests -p 'test_validate_security_exceptions.py' -v
+
+      - name: Validate ledger freshness and suppression alignment
+        shell: bash
+        env:
+          LEDGER_PATH: ${{ inputs.ledger-path }}
+          IGNORE_PATH: ${{ inputs.ignore-path }}
+          ALLOW_EMPTY_LEDGER: ${{ inputs.allow-empty-ledger && 'true' || 'false' }}
+        run: |
+          args=(--ledger-path "$LEDGER_PATH" --ignore-path "$IGNORE_PATH")
+          if [[ "$ALLOW_EMPTY_LEDGER" == "true" ]]; then args+=(--allow-empty-ledger); fi
+          python3 .nextrium-engineering-workflows/scripts/validate_security_exceptions.py "${args[@]}"
