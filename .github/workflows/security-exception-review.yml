@@ -42,8 +42,9 @@ jobs:
           persist-credentials: false
 
       - name: Test central review validator
+        working-directory: .nextrium-engineering-workflows
         shell: bash
-        run: python3 -m unittest discover -s .nextrium-engineering-workflows/tests -p 'test_validate_security_exceptions.py' -v
+        run: python3 -m unittest discover -s tests -p 'test_validate_security_exceptions.py' -v
 
       - name: Validate ledger freshness and suppression alignment
         shell: bash
