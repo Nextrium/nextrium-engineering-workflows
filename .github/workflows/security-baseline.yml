@@ -127,4 +127,5 @@ jobs:
         shell: bash
         env:
           WORK_DIR: ${{ inputs.working-directory }}
-        run: "$(go env GOPATH)/bin/govulncheck" -C "$WORK_DIR" ./...
+        run: |
+          "$(go env GOPATH)/bin/govulncheck" -C "$WORK_DIR" ./...
