@@ -18,7 +18,7 @@ Reusable, security-conscious GitHub Actions workflows for Nextrium projects.
 | `go-ci.yml` | Go formatting, tests, vet, and static analysis | Initial implementation |
 | `python-ci.yml` | Python formatting, lint, tests, and type checks where configured | Initial implementation |
 | `typescript-ci.yml` | TypeScript/JavaScript install, lint, type-check, and tests where configured | Initial implementation |
-| `security-baseline.yml` | Git-history secret detection, GitHub Actions static analysis, optional Go vulnerability analysis | Validated in this repository; consumer validation pending |
+| `security-baseline.yml` | Git-history secret detection, GitHub Actions static analysis, optional Go vulnerability analysis | Validated in this repository and consumer-validated in `Nextrium/naig` at `30324b8c4687fc90bf74ba70fb61de4db877a6b8` (`scan-go: true`, PR `#16` / `9399e8ca`); failure-injection tests remain unimplemented |
 | `security-exception-review.yml` | Reusable (`workflow_call`) exception-ledger review-date freshness and ignore-entry reconciliation | Ready for pinned consumer adoption |
 | `central-exception-review.yml` | Central repository exception-ledger review-date freshness and unit-test workflow | Validated in this repository |
 | Dependency review | Planned; action pin and repository compatibility must be verified before implementation | Not implemented |
